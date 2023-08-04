@@ -1,0 +1,4 @@
+fake_useragent==0.1.11
+web3==5.23.0
+requests==2.26.0
+colorlog==6.4.1
