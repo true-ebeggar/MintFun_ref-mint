@@ -4,9 +4,9 @@
 <h2>🚀 Запуск</h2>
 
 ```
-git clone https://github.com/czbag/omni-x.git
+git clone https://github.com/Reilighost/MintFun_ref-mint.git
 
-cd omni-x
+cd MintFun_ref-mint
 
 pip install -r requirements.txt
 
