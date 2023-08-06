@@ -39,12 +39,15 @@ class ReferralSystem:
             if link not in self.link_usage:
                 self.link_usage[link] = 0
             if self.link_usage[link] < Invite_per_linc:
-                self.link_usage[link] += 1
-                self.save_link_usage()
-                if self.link_usage[link] == Invite_per_linc:
-                    self.cleanup_links()
                 return link
         return None
+
+    def increment_link_usage(self, link):
+        if link in self.link_usage:
+            self.link_usage[link] += 1
+            self.save_link_usage()
+            if self.link_usage[link] == Invite_per_linc:
+                self.cleanup_links()
 
     def save_link_usage(self):
         with open(self.usage_file, 'w') as f:
@@ -155,6 +158,7 @@ def mint(config, private_key, nugger):
     base_fee = w3.eth.fee_history(w3.eth.get_block_number(), 'latest')['baseFeePerGas'][-1]
     priority_max = w3.to_wei(0.6, 'gwei')
 
+    # Fetch a link but don't increment the counter yet
     ref_sys = ReferralSystem('ref_links.txt')
     link = ref_sys.get_link()
     if link is None:
@@ -192,6 +196,18 @@ def mint(config, private_key, nugger):
 
         # Check the status field for success
     if txn_receipt['status'] == 1:
+        # Increment the link usage here after success
+        ref_sys.increment_link_usage(link)
+
+        # Remove the private key from the list after a successful transaction
+        if private_key in private_keys:
+            private_keys.remove(private_key)
+
+        # Optionally, you can save the modified list to the 'private_keys.txt' file if needed:
+        with open('private_keys.txt', 'w') as keys_file:
+            for key in private_keys:
+                keys_file.write(key + '\n')
+
         nugger.info(f"Transaction was successful...")
         nugger.info(f"Txn hash: https://etherscan.io/tx/{txn_hash.hex()}")
         with open('successful_transactions.txt', 'a') as f:
