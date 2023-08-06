@@ -119,9 +119,12 @@ def wait_for_gas_price_to_decrease(node_url, desired_gas_price):
 
         if current_base_fee <= desired_gas_price:
             break  # Exit the loop if the base fee is less than or equal to the desired level
-
-        print(f"Current base fee ({current_base_fee} Gwei) is higher than desired ({desired_gas_price} Gwei). Waiting...")
-        time.sleep(10)  # Check the base fee every 10 sec
+        else:
+            print(
+                f"Current base fee ({current_base_fee} Gwei) is higher than desired ({desired_gas_price} Gwei). Waiting...",
+                end="", flush=True)
+            time.sleep(10)  # Message displayed for 10 seconds
+            print("\033[K", end="\r", flush=True)  # Check the base fee every 10 sec
 def get_sign(main_address: str, referrer: str):
     while True:
         try:
@@ -159,6 +162,7 @@ def mint(config, private_key, nugger):
         exit("System termination")
 
     referrer = str(link)
+    referrer = w3.to_checksum_address(referrer)
     signature = get_sign(address, referrer)
 
     swap_txn = contract.functions.mint(referrer, signature).build_transaction({
@@ -208,10 +212,9 @@ def main():
         account = Account.from_key(private_key)
         wait_for_gas_price_to_decrease("https://ethereum.publicnode.com", desired_gas_price)
         nugger.info(f"Started work with wallet: {account.address}")
-        try:
-            mint(config, private_key, nugger)
-        except Exception:
-            continue
+
+        mint(config, private_key, nugger)
+
         slp = random.randint(min_delay, max_delay)
         nugger.warning(f"Sleep for {slp} second before next operation...")
         nugger.error("Subscribe - https://t.me/CryptoBub_ble")
