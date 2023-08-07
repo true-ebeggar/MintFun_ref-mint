@@ -5,6 +5,7 @@ import json, random, time
 import os
 import colorlog
 import logging
+from datetime import datetime
 
 
 
@@ -210,8 +211,11 @@ def mint(config, private_key, nugger):
 
         nugger.info(f"Transaction was successful...")
         nugger.info(f"Txn hash: https://etherscan.io/tx/{txn_hash.hex()}")
+
+        current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         with open('successful_transactions.txt', 'a') as f:
-            f.write(f'{address_checksum}, successful transaction, Txn hash: https://etherscan.io/tx/{txn_hash.hex()}\n')
+            f.write(
+                f'{current_timestamp}, {address_checksum}, successful transaction, Txn hash: https://etherscan.io/tx/{txn_hash.hex()}\n')
         return 1
     elif txn_receipt['status'] == 0:
         nugger.warning("Transaction was unsuccessful.")
@@ -239,4 +243,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
